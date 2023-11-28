@@ -1,61 +1,129 @@
 import pandas as pd
+import json
+import requests
 import streamlit as st
+import time
 from io import BytesIO
-import xlsxwriter
 from datetime import timedelta
 from st_aggrid import AgGrid
+from streamlit_lottie import st_lottie
 
-correct_username = "rohit.kaushik@quation.in"
-correct_password = "Rk14101996@"
+# Function to load lottie animation from URL
+def load_lottieurl(url: str):
+  r = requests.get(url)
+  if r.status_code != 200:
+    return None
+  return r.json()
 
-def style_dataframe(df):
-    # Add borders to the dataframe
-    border_style = f'<style>.dataframe {{border: 3px solid #00F;}}</style>'
-    st.markdown(border_style, unsafe_allow_html=True)
-    
-    # Make headers bold
-    header_style = f'<style>.dataframe th {{font-weight: bold;}}</style>'
-    st.markdown(header_style, unsafe_allow_html=True)
-
-
+# Function for the login box
 def login():
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
-    return username, password
+  st.sidebar.title("Enter the username and password")
+  username = st.sidebar.text_input("Enter your username")
+  password = st.sidebar.text_input("Enter your password", type="password")
+  login_button = st.sidebar.button("Login")
 
+  return username, password, login_button
+
+# Credentials
+correct_username = "a"
+correct_password = "a"
+
+# Function to style the dataframe
+def style_dataframe(df):
+  # Add borders to the dataframe
+  border_style = f'<style>.dataframe {{border: 3px solid #00F;}}</style>'
+  st.markdown(border_style, unsafe_allow_html=True)
+
+  # Make headers bold
+  header_style = f'<style>.dataframe th {{font-weight: bold;}}</style>'
+  st.markdown(header_style, unsafe_allow_html=True)
+
+# Function for user login
+def login_check(username, password):
+  if username == correct_username and password == correct_password:
+    return True
+  else:
+    return False
+
+# Function to download Excel
 def download_excel(dataframes):
-    op = BytesIO()
-    with pd.ExcelWriter(op, engine='xlsxwriter') as wr:
-        for sheet_name, df in dataframes.items():
-            if sheet_name == "Pivot_Summary":
-                df.to_excel(wr, index=True, sheet_name=sheet_name)
-            else:
-                df.to_excel(wr, index=False, sheet_name=sheet_name)
-    op.seek(0)
-    return op.getvalue()
+  op = BytesIO()
+  with pd.ExcelWriter(op, engine='xlsxwriter') as wr:
+    for sheet_name, df in dataframes.items():
+      if sheet_name == "Pivot_Summary":
+        df.to_excel(wr, index=True, sheet_name=sheet_name)
+      else:
+        df.to_excel(wr, index=False, sheet_name=sheet_name)
+  op.seek(0)
+  return op.getvalue()
 
+# Function to calculate the next weekday
 def calculate_next_weekday(date, target_weekday):
-    days_until_target = (target_weekday - date.weekday() + 7) % 7
-    return date + timedelta(days=days_until_target)
+  days_until_target = (target_weekday - date.weekday() + 7) % 7
+  return date + timedelta(days=days_until_target)
 
+# Main function
 def main():
-    st.set_page_config(
-        page_title="Vendor Payment Automation",
-        layout="wide",
-        page_icon="🧊",
-        # theme="simple"
-    )
+  st.set_page_config(
+    page_title="Vendor Payment Automation",
+    layout="wide",
+    page_icon="🧊",
+  )
 
-    username, password = login()
+  st.markdown("""
+    <script>
+      document.addEventListener('hideSidebar', function() {
+        document.querySelector('.sidebar').style.display = 'none';
+      });
+    </script>
+  """, unsafe_allow_html=True)
 
-    if username == correct_username and password == correct_password:
-        st.sidebar.success("Login successful")
+  st.markdown('<h2 style="text-align: center; font-size: 45px; font-weight: bold;">Vendor Payment Automation</h2>', unsafe_allow_html=True)
+  st.title("")
 
-        st.title("Vendor Payment Automation")
+  # Load Lottie animation
+  lottie_hello = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_M9p23l.json")
+  st_lottie(
+            lottie_hello,
+            speed=1,
+            reverse=False,
+            loop=True,
+            quality="low",  # medium ; high
+            height=200,
+            width=200,
+            key=None,
+           )
 
-        uploaded_Fabl1n = st.file_uploader("Upload FABL1N File", type=["xlsx"])
-        uploaded_ZFI001 = st.file_uploader("Upload ZFI001 File", type=["xlsx"])
+  # Perform data processing and display results if logged in
+  username, password, login_button = login()
+#   login_box()
+
+  if login_check(username, password):
+        st.sidebar.success("Login Successfully")
+        st.sidebar.markdown(
+        """
+        ## Contact Information
+        If you encounter any difficulties, please contact:
+
+        - **Name:** Prathmesh Prakash More
+        - **Phone Number:** +91-9870225421
+        - **Email:** prathmesh.m@quation.in
+        """
+        )
+
+
+        
+        st.markdown('<h2 style="text-align: center; font-size: 24px; font-weight: bold;">Upload FABL1N File</h2>', unsafe_allow_html=True)
+        uploaded_Fabl1n = st.file_uploader(" ", type=["xlsx"])
+        # time.sleep(20)
+        
+        st.markdown('<h2 style="text-align: center; font-size: 24px; font-weight: bold;">Upload ZFI001 File</h2>', unsafe_allow_html=True)
+        uploaded_ZFI001 = st.file_uploader("", type=["xlsx"])
+        # time.sleep(20)
+        
+        st.markdown('<h2 style="text-align: center; font-size: 25px; font-weight: bold;">Upload Vendor Master File</h2>', unsafe_allow_html=True)
         uploaded_Master = st.file_uploader("Upload Vendor Master File", type=["xlsx"])
+        # time.sleep(20)
         
         
         try:
@@ -148,11 +216,14 @@ def main():
         except:
             st.write("An error occurred. Please check your data and try again.")
             
-    else:
-        if username != "" and password != "":
-            if username != correct_username or password != correct_password:
-                st.sidebar.error("Login failed. Please provide the correct username and password.")    
+  else:
+    if username != "" and password != "":
+        if username != correct_username or password != correct_password:
+            st.sidebar.error("Login failed. Please provide the correct username and password.")    
 
 
 if __name__ == "__main__":
     main()
+    
+
+    
