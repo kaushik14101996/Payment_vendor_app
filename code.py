@@ -25,8 +25,8 @@ def login():
   return username, password, login_button
 
 # Credentials
-correct_username = "a"
-correct_password = "a"
+correct_username = "rohit.kaushik@quation.in"
+correct_password = "Rk14101996@"
 
 # Function to style the dataframe
 def style_dataframe(df):
@@ -211,7 +211,7 @@ def main():
                 dataframes = {"Output": working2, "Pivot_Summary": Pivot, "Fbl1n": fbl1n, "ZFI001": zfi001_1}
                 excel_data = download_excel(dataframes)
 
-                st.download_button("Download Result", data=excel_data, file_name="Result.xlsx",
+                st.download_button("Download Result", data=excel_data, file_name="Vendor_Payment_Result.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         except:
             st.write("An error occurred. Please check your data and try again.")
