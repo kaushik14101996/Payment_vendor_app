@@ -25,8 +25,8 @@ def login():
   return username, password, login_button
 
 # Credentials
-correct_username = "rohit.kaushik@quation.in"
-correct_password = "Rk14101996@"
+correct_username = "a"
+correct_password = "a"
 
 # Function to style the dataframe
 def style_dataframe(df):
@@ -128,6 +128,9 @@ def main():
         
         try:
             if uploaded_Fabl1n and uploaded_ZFI001 and uploaded_Master:
+              login_button = st.button("Start Processing")
+              if login_button:
+    
                 fbl1n = pd.read_excel(uploaded_Fabl1n, dtype='object')
                 zfi001 = pd.read_excel(uploaded_ZFI001, dtype='object')
                 vendors = pd.read_excel(uploaded_Master, dtype='object')
@@ -211,7 +214,7 @@ def main():
                 dataframes = {"Output": working2, "Pivot_Summary": Pivot, "Fbl1n": fbl1n, "ZFI001": zfi001_1}
                 excel_data = download_excel(dataframes)
 
-                st.download_button("Download Result", data=excel_data, file_name="Vendor_Payment_Result.xlsx",
+                st.download_button("Download Result", data=excel_data, file_name="Result.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         except:
             st.write("An error occurred. Please check your data and try again.")
